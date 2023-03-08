@@ -1,0 +1,42 @@
+from microbit import  *
+import music
+import radio
+radio.on()
+radio.config(channel=16)
+
+pin0.read_digital()
+pin0.set_pull(0)
+
+def alarm_detected(cause):
+    msg = "ALARM" + cause
+    radio.send(msg)
+    display.scroll(cause)
+while True:
+    if pin0.read_digital():
+        alarm_detected("Fence")
+        sleep(1000)
+def start_alarm(cause):
+    music.play(music.POWER_UP, wait = False, loop = True)
+    display.scroll(cause, wait=  False, loop = True)
+
+def stop_alarm():
+    music.stop()
+    display.clear()
+
+def check_alarm(msg):
+    cause = ' '
+    if msg[:5] == 'ALARM':
+        cause = msg[:5]
+    return cause
+
+while True:
+    if button_a.was_pressed():
+        stop_alarm()
+    elif button_b.was_pressed():
+        start_alarm("Test")
+        
+    msg = radio.receive()
+    if msg:
+        cause = check_alarm(msg)
+        if cause:
+            start_alarm(cause)
